@@ -1,60 +1,70 @@
 {% extends "base.html" %}
-{% block title %}History - ContentForge{% endblock %}
+{% block title %}History — ContentForge{% endblock %}
 {% block content %}
-<h2 class="mb-4">Analysis History</h2>
-
-<form method="get" class="row g-2 mb-4">
-  <div class="col-auto">
-    <select name="platform" class="form-select" onchange="this.form.submit()">
-      <option value="">All Platforms</option>
-      <option value="seo" {% if platform_filter == 'seo' %}selected{% endif %}>General SEO</option>
-      <option value="youtube" {% if platform_filter == 'youtube' %}selected{% endif %}>YouTube</option>
-      <option value="instagram" {% if platform_filter == 'instagram' %}selected{% endif %}>Instagram</option>
-      <option value="linkedin" {% if platform_filter == 'linkedin' %}selected{% endif %}>LinkedIn</option>
-      <option value="facebook" {% if platform_filter == 'facebook' %}selected{% endif %}>Facebook</option>
-      <option value="twitter" {% if platform_filter == 'twitter' %}selected{% endif %}>X / Twitter</option>
-      <option value="tiktok" {% if platform_filter == 'tiktok' %}selected{% endif %}>TikTok</option>
-      <option value="pinterest" {% if platform_filter == 'pinterest' %}selected{% endif %}>Pinterest</option>
-      <option value="grammar" {% if platform_filter == 'grammar' %}selected{% endif %}>Grammar</option>
-    </select>
-  </div>
-</form>
-
-{% if records %}
-<div class="list-group mb-4">
-  {% for r in records %}
-  <a href="{% url 'history_detail' r.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+<div class="fade-in-up">
+  <div class="flex items-center gap-3 mb-6">
+    <span class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600"><i class="fas fa-clock"></i></span>
     <div>
-      <strong>{{ r.get_platform_display }}</strong>
-      <small class="text-muted ms-2">{{ r.input_text|truncatechars:80 }}</small>
+      <h1 class="text-2xl font-bold text-gray-900">Analysis History</h1>
+      <p class="text-gray-500 text-sm">All your past analyses in one place</p>
     </div>
-    <small class="text-muted">{{ r.created_at|date:"M j, Y H:i" }}</small>
-  </a>
-  {% endfor %}
-</div>
+  </div>
 
-{% if total_pages > 1 %}
-<nav>
-  <ul class="pagination justify-content-center">
+  <!-- Filter Chips -->
+  <form method="get" class="mb-6">
+    <div class="flex flex-wrap gap-2">
+      <button type="submit" name="platform" value="" class="px-4 py-2 text-sm font-medium rounded-xl border transition-all {% if platform_filter == '' %}bg-indigo-600 text-white border-indigo-600{% else %}bg-white text-gray-600 border-gray-200 hover:border-indigo-300{% endif %}">All</button>
+      <button type="submit" name="platform" value="seo" class="px-4 py-2 text-sm font-medium rounded-xl border transition-all {% if platform_filter == 'seo' %}bg-indigo-600 text-white border-indigo-600{% else %}bg-white text-gray-600 border-gray-200 hover:border-indigo-300{% endif %}">SEO</button>
+      <button type="submit" name="platform" value="youtube" class="px-4 py-2 text-sm font-medium rounded-xl border transition-all {% if platform_filter == 'youtube' %}bg-indigo-600 text-white border-indigo-600{% else %}bg-white text-gray-600 border-gray-200 hover:border-indigo-300{% endif %}">YouTube</button>
+      <button type="submit" name="platform" value="instagram" class="px-4 py-2 text-sm font-medium rounded-xl border transition-all {% if platform_filter == 'instagram' %}bg-indigo-600 text-white border-indigo-600{% else %}bg-white text-gray-600 border-gray-200 hover:border-indigo-300{% endif %}">Instagram</button>
+      <button type="submit" name="platform" value="linkedin" class="px-4 py-2 text-sm font-medium rounded-xl border transition-all {% if platform_filter == 'linkedin' %}bg-indigo-600 text-white border-indigo-600{% else %}bg-white text-gray-600 border-gray-200 hover:border-indigo-300{% endif %}">LinkedIn</button>
+      <button type="submit" name="platform" value="facebook" class="px-4 py-2 text-sm font-medium rounded-xl border transition-all {% if platform_filter == 'facebook' %}bg-indigo-600 text-white border-indigo-600{% else %}bg-white text-gray-600 border-gray-200 hover:border-indigo-300{% endif %}">Facebook</button>
+      <button type="submit" name="platform" value="twitter" class="px-4 py-2 text-sm font-medium rounded-xl border transition-all {% if platform_filter == 'twitter' %}bg-indigo-600 text-white border-indigo-600{% else %}bg-white text-gray-600 border-gray-200 hover:border-indigo-300{% endif %}">X/Twitter</button>
+      <button type="submit" name="platform" value="tiktok" class="px-4 py-2 text-sm font-medium rounded-xl border transition-all {% if platform_filter == 'tiktok' %}bg-indigo-600 text-white border-indigo-600{% else %}bg-white text-gray-600 border-gray-200 hover:border-indigo-300{% endif %}">TikTok</button>
+      <button type="submit" name="platform" value="pinterest" class="px-4 py-2 text-sm font-medium rounded-xl border transition-all {% if platform_filter == 'pinterest' %}bg-indigo-600 text-white border-indigo-600{% else %}bg-white text-gray-600 border-gray-200 hover:border-indigo-300{% endif %}">Pinterest</button>
+      <button type="submit" name="platform" value="grammar" class="px-4 py-2 text-sm font-medium rounded-xl border transition-all {% if platform_filter == 'grammar' %}bg-indigo-600 text-white border-indigo-600{% else %}bg-white text-gray-600 border-gray-200 hover:border-indigo-300{% endif %}">Grammar</button>
+    </div>
+  </form>
+
+  <!-- History Cards -->
+  {% if records %}
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+    {% for r in records %}
+    <a href="{% url 'history_detail' r.pk %}" class="bg-white rounded-xl border border-gray-100 p-4 hover:border-indigo-200 hover:shadow-sm transition-all">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="w-8 h-8 rounded-lg flex items-center justify-center text-sm
+          {% if r.platform == 'grammar' %}bg-emerald-100 text-emerald-600{% else %}bg-indigo-100 text-indigo-600{% endif %}">
+          <i class="{% if r.platform == 'grammar' %}fas fa-spell-check{% else %}fas fa-search{% endif %}"></i>
+        </span>
+        <span class="font-semibold text-sm text-gray-900">{{ r.get_platform_display }}</span>
+      </div>
+      <p class="text-xs text-gray-400 line-clamp-2 mb-2">{{ r.input_text|truncatechars:100 }}</p>
+      <span class="text-xs text-gray-400 flex items-center gap-1"><i class="far fa-calendar-alt"></i> {{ r.created_at|date:"M j, Y" }} at {{ r.created_at|date:"H:i" }}</span>
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if total_pages > 1 %}
+  <div class="flex items-center justify-center gap-2">
     {% if page > 1 %}
-    <li class="page-item"><a class="page-link" href="?page={{ page|add:-1 }}&platform={{ platform_filter }}">Previous</a></li>
+    <a href="?page={{ page|add:-1 }}&platform={{ platform_filter }}" class="w-9 h-9 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-600 hover:border-indigo-300 text-sm transition-all"><i class="fas fa-chevron-left"></i></a>
     {% endif %}
     {% for p in page_range %}
-    <li class="page-item {% if p == page %}active{% endif %}">
-      <a class="page-link" href="?page={{ p }}&platform={{ platform_filter }}">{{ p }}</a>
-    </li>
+    <a href="?page={{ p }}&platform={{ platform_filter }}" class="w-9 h-9 flex items-center justify-center rounded-full text-sm font-medium transition-all {% if p == page %}bg-indigo-600 text-white shadow-sm{% else %}bg-white border border-gray-200 text-gray-600 hover:border-indigo-300{% endif %}">{{ p }}</a>
     {% endfor %}
     {% if page < total_pages %}
-    <li class="page-item"><a class="page-link" href="?page={{ page|add:1 }}&platform={{ platform_filter }}">Next</a></li>
+    <a href="?page={{ page|add:1 }}&platform={{ platform_filter }}" class="w-9 h-9 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-600 hover:border-indigo-300 text-sm transition-all"><i class="fas fa-chevron-right"></i></a>
     {% endif %}
-  </ul>
-</nav>
-{% endif %}
+  </div>
+  {% endif %}
 
-{% else %}
-<div class="text-center py-5 text-muted">
-  <i class="bi bi-inbox fs-1"></i>
-  <p class="mt-2">No history found.</p>
+  {% else %}
+  <div class="bg-white rounded-2xl border border-gray-100 p-12 text-center">
+    <span class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 text-3xl mx-auto mb-4"><i class="fas fa-inbox"></i></span>
+    <p class="text-gray-500">No history found.</p>
+    <a href="{% url 'seo_input' %}" class="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-indigo-600 text-white font-medium rounded-xl text-sm hover:bg-indigo-700 transition-all btn-scale">Start Your First Analysis</a>
+  </div>
+  {% endif %}
 </div>
-{% endif %}
 {% endblock %}

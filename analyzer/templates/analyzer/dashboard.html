@@ -1,53 +1,60 @@
 {% extends "base.html" %}
-{% block title %}Dashboard - ContentForge{% endblock %}
+{% block title %}Dashboard — ContentForge{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h2 class="mb-0">Dashboard</h2>
-  <a href="{% url 'seo_input' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New SEO Analysis</a>
+<!-- Welcome Header -->
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+  <div>
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Welcome, {{ user.username }}</h1>
+    <p class="text-gray-500 text-sm mt-1">Analyze your content across all major platforms</p>
+  </div>
+  <a href="{% url 'seo_input' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-all btn-scale shadow-sm">
+    <i class="fas fa-plus"></i> New SEO Analysis
+  </a>
 </div>
 
-<div class="row g-3 mb-4">
+<!-- Platform Grid -->
+<div class="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-5 gap-3 mb-10">
   {% for key, label, icon in platforms %}
-  <div class="col-6 col-md-3 col-lg-15">
-    <a href="{% url 'seo_input_platform' key %}" class="text-decoration-none">
-      <div class="card text-center p-3 h-100 shadow-sm dashboard-card">
-        <div class="card-body">
-          <i class="bi bi-{{ icon }} fs-2 text-primary"></i>
-          <p class="card-text small mt-2">{{ label }}</p>
-        </div>
-      </div>
-    </a>
-  </div>
-  {% endfor %}
-  <div class="col-6 col-md-3 col-lg-15">
-    <a href="{% url 'grammar_input' %}" class="text-decoration-none">
-      <div class="card text-center p-3 h-100 shadow-sm dashboard-card">
-        <div class="card-body">
-          <i class="bi bi-spellcheck fs-2 text-success"></i>
-          <p class="card-text small mt-2">Grammar</p>
-        </div>
-      </div>
-    </a>
-  </div>
-</div>
-
-<h4 class="mb-3">Recent Activity</h4>
-{% if recent %}
-<div class="list-group">
-  {% for r in recent %}
-  <a href="{% if r.platform == 'grammar' %}{% url 'grammar_results' r.pk %}{% else %}{% url 'seo_results' r.pk %}{% endif %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-    <div>
-      <strong>{{ r.get_platform_display }}</strong>
-      <small class="text-muted ms-2">{{ r.input_text|truncatechars:60 }}</small>
-    </div>
-    <small class="text-muted">{{ r.created_at|date:"M j, H:i" }}</small>
+  <a href="{% url 'seo_input_platform' key %}" class="platform-card fade-in-up stagger-{{ forloop.counter }} flex flex-col items-center justify-center p-4 sm:p-5 bg-white rounded-2xl border border-gray-100 shadow-sm text-decoration-none
+    {% if key == 'youtube' %}hover:border-red-300 hover:shadow-red-100{% elif key == 'instagram' %}hover:border-pink-300 hover:shadow-pink-100{% elif key == 'linkedin' %}hover:border-blue-400 hover:shadow-blue-100{% elif key == 'facebook' %}hover:border-blue-600 hover:shadow-blue-100{% elif key == 'twitter' %}hover:border-sky-400 hover:shadow-sky-100{% elif key == 'tiktok' %}hover:border-gray-400 hover:shadow-gray-100{% elif key == 'pinterest' %}hover:border-red-500 hover:shadow-red-100{% else %}hover:border-indigo-300 hover:shadow-indigo-100{% endif %}">
+    <i class="fab fa-{{ icon }} text-2xl
+      {% if key == 'youtube' %}text-red-500{% elif key == 'instagram' %}text-pink-500{% elif key == 'linkedin' %}text-blue-500{% elif key == 'facebook' %}text-blue-600{% elif key == 'twitter' %}text-sky-400{% elif key == 'tiktok' %}text-gray-700{% elif key == 'pinterest' %}text-red-600{% else %}text-indigo-500{% endif %}">
+    </i>
+    <span class="text-xs font-medium text-gray-700 mt-2 text-center leading-tight">{{ label }}</span>
   </a>
   {% endfor %}
+  <a href="{% url 'grammar_input' %}" class="platform-card fade-in-up stagger-9 flex flex-col items-center justify-center p-4 sm:p-5 bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-emerald-300 hover:shadow-emerald-100 text-decoration-none">
+    <i class="fas fa-spell-check text-2xl text-emerald-500"></i>
+    <span class="text-xs font-medium text-gray-700 mt-2">Grammar</span>
+  </a>
 </div>
-{% else %}
-<div class="text-center py-5 text-muted">
-  <i class="bi bi-inbox fs-1"></i>
-  <p class="mt-2">No analyses yet. <a href="{% url 'seo_input' %}">Create your first one.</a></p>
+
+<!-- Recent Activity -->
+<div class="fade-in-up">
+  <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><i class="fas fa-clock text-gray-400"></i> Recent Activity</h2>
+  {% if recent %}
+  <div class="space-y-2">
+    {% for r in recent %}
+    <a href="{% if r.platform == 'grammar' %}{% url 'grammar_results' r.pk %}{% else %}{% url 'seo_results' r.pk %}{% endif %}" class="block bg-white rounded-xl border border-gray-100 p-4 hover:border-indigo-200 hover:shadow-sm transition-all">
+      <div class="flex items-center gap-3">
+        <span class="w-9 h-9 rounded-lg flex items-center justify-center text-sm
+          {% if r.platform == 'grammar' %}bg-emerald-100 text-emerald-600{% else %}bg-indigo-100 text-indigo-600{% endif %}">
+          <i class="{% if r.platform == 'grammar' %}fas fa-spell-check{% else %}fas fa-search{% endif %}"></i>
+        </span>
+        <div class="flex-1 min-w-0">
+          <span class="font-semibold text-sm text-gray-900">{{ r.get_platform_display }}</span>
+          <p class="text-xs text-gray-400 truncate">{{ r.input_text|truncatechars:70 }}</p>
+        </div>
+        <span class="text-xs text-gray-400 whitespace-nowrap">{{ r.created_at|date:"M j, H:i" }}</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="bg-white rounded-2xl border border-gray-100 p-10 text-center">
+    <span class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 text-2xl mx-auto mb-3"><i class="fas fa-inbox"></i></span>
+    <p class="text-gray-500 text-sm">No analyses yet. <a href="{% url 'seo_input' %}" class="text-indigo-600 font-semibold">Create your first one.</a></p>
+  </div>
+  {% endif %}
 </div>
-{% endif %}
 {% endblock %}

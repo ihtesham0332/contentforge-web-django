@@ -4,60 +4,115 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}ContentForge{% endblock %}</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
   {% load static %}
-  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   {% block extra_head %}{% endblock %}
 </head>
-<body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="{% url 'home' %}">
-        <i class="bi bi-lightning-charge-fill"></i> ContentForge
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto">
+<body class="bg-stone-50 text-gray-900 antialiased min-h-screen flex flex-col">
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm"></div>
+
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-200/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <a href="{% url 'home' %}" class="flex items-center gap-2 text-indigo-600 font-extrabold text-xl tracking-tight">
+          <span class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-sm"><i class="fas fa-bolt"></i></span>
+          ContentForge
+        </a>
+
+        <!-- Desktop Nav -->
+        <div class="hidden md:flex items-center gap-1">
           {% if user.is_authenticated %}
-          <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'seo_input' %}">SEO Analysis</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'grammar_input' %}">Grammar</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'history' %}">History</a></li>
+          <a href="{% url 'dashboard' %}" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors">Dashboard</a>
+          <a href="{% url 'seo_input' %}" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors">SEO</a>
+          <a href="{% url 'grammar_input' %}" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors">Grammar</a>
+          <a href="{% url 'history' %}" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors">History</a>
           {% endif %}
-        </ul>
-        <ul class="navbar-nav">
+        </div>
+
+        <!-- User Menu -->
+        <div class="flex items-center gap-2">
           {% if user.is_authenticated %}
-          <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}"><i class="bi bi-person-circle"></i> {{ user.username }}</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Log Out</a></li>
+          <a href="{% url 'profile' %}" class="hidden sm:flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors">
+            <span class="w-7 h-7 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-xs font-bold">{{ user.username|first|upper }}</span>
+            <span class="font-medium">{{ user.username }}</span>
+          </a>
+          <a href="{% url 'logout' %}" class="px-3 py-1.5 text-sm text-gray-500 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"><i class="fas fa-sign-out-alt"></i></a>
           {% else %}
-          <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Log In</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'signup' %}">Sign Up</a></li>
+          <a href="{% url 'login' %}" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors">Log In</a>
+          <a href="{% url 'signup' %}" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-all btn-scale">Sign Up Free</a>
           {% endif %}
-        </ul>
+
+          <!-- Mobile hamburger -->
+          <button id="mobileMenuBtn" class="md:hidden p-2 text-gray-500 hover:text-indigo-600" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden md:hidden border-t border-gray-100 bg-white">
+      <div class="px-4 py-3 space-y-1">
+        {% if user.is_authenticated %}
+        <a href="{% url 'dashboard' %}" class="block px-3 py-2 rounded-lg text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"><i class="fas fa-th-large w-6"></i> Dashboard</a>
+        <a href="{% url 'seo_input' %}" class="block px-3 py-2 rounded-lg text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"><i class="fas fa-search w-6"></i> SEO Analysis</a>
+        <a href="{% url 'grammar_input' %}" class="block px-3 py-2 rounded-lg text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"><i class="fas fa-spell-check w-6"></i> Grammar</a>
+        <a href="{% url 'history' %}" class="block px-3 py-2 rounded-lg text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"><i class="fas fa-clock w-6"></i> History</a>
+        <hr class="my-2 border-gray-100">
+        <a href="{% url 'profile' %}" class="block px-3 py-2 rounded-lg text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"><i class="fas fa-user w-6"></i> Profile</a>
+        <a href="{% url 'logout' %}" class="block px-3 py-2 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors"><i class="fas fa-sign-out-alt w-6"></i> Log Out</a>
+        {% else %}
+        <a href="{% url 'login' %}" class="block px-3 py-2 rounded-lg text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"><i class="fas fa-sign-in-alt w-6"></i> Log In</a>
+        <a href="{% url 'signup' %}" class="block px-3 py-2 rounded-lg text-indigo-600 font-medium hover:bg-indigo-50 transition-colors"><i class="fas fa-user-plus w-6"></i> Sign Up</a>
+        {% endif %}
       </div>
     </div>
   </nav>
 
-  <main class="container mt-4 mb-5">
-    {% if messages %}
+  <!-- Messages -->
+  {% if messages %}
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
     {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <div class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium 
+      {% if message.tags == 'error' %}bg-rose-50 text-rose-700 border border-rose-200
+      {% elif message.tags == 'success' %}bg-emerald-50 text-emerald-700 border border-emerald-200
+      {% else %}bg-indigo-50 text-indigo-700 border border-indigo-200{% endif %}">
+      <span>{% if message.tags == 'error' %}<i class="fas fa-exclamation-circle"></i>{% elif message.tags == 'success' %}<i class="fas fa-check-circle"></i>{% else %}<i class="fas fa-info-circle"></i>{% endif %}</span>
+      <span class="flex-1">{{ message }}</span>
+      <button onclick="this.parentElement.remove()" class="text-current opacity-50 hover:opacity-100"><i class="fas fa-times"></i></button>
     </div>
     {% endfor %}
-    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full">
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="bg-dark text-light text-center py-3 mt-auto">
-    <small>ContentForge &mdash; Powered by Qwen2.5-0.5B</small>
+  <!-- Footer -->
+  <footer class="bg-white border-t border-gray-100 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-gray-400">
+      <span class="flex items-center gap-1"><i class="fas fa-bolt text-indigo-400"></i> ContentForge</span>
+      <span>Powered by Qwen2.5-0.5B &middot; Built with Django</span>
+    </div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{% static 'js/main.js' %}"></script>
   {% block extra_scripts %}{% endblock %}
 </body>
