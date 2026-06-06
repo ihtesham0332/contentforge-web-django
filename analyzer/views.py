@@ -1,10 +1,16 @@
 import json
+import threading
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import SEOForm, GrammarForm
 from .models import AnalysisHistory
 from . import api_client
+
+
+def _warmup():
+    t = threading.Thread(target=api_client.warmup, daemon=True)
+    t.start()
 
 PLATFORM_ICONS = [
     ("youtube", "YouTube", "play-btn-fill"),
@@ -19,6 +25,7 @@ PLATFORM_ICONS = [
 
 
 def home(request):
+    _warmup()
     return render(request, "home.html", {"platforms": PLATFORM_ICONS})
 
 
@@ -29,6 +36,7 @@ def _get_token(request):
 
 @login_required
 def dashboard(request):
+    _warmup()
     recent = AnalysisHistory.objects.filter(user=request.user)[:6]
     return render(request, "analyzer/dashboard.html", {"recent": recent, "platforms": PLATFORM_ICONS})
 
