@@ -73,7 +73,7 @@ def warmup():
     try:
         resp = requests.get(
             f"{settings.API_BASE_URL}/",
-            headers=_headers(_get_token(None)),
+            headers=_headers(settings.API_AUTH_TOKEN),
             timeout=30,
         )
         if resp.status_code == 200:
