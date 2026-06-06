@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}SEO Results - ContentForge{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0">{{ record.get_platform_display }} Results</h2>
+  <div>
+    <button class="btn btn-outline-secondary btn-sm me-1" onclick="copyResults()"><i class="bi bi-clipboard"></i> Copy</button>
+    <a href="{% url 'seo_input' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-arrow-left"></i> New Analysis</a>
+  </div>
+</div>
+
+{% if error %}
+<div class="alert alert-warning">{{ error }}</div>
+{% endif %}
+
+<p class="text-muted"><strong>Input:</strong> {{ record.input_text|truncatechars:200 }}</p>
+
+<ul class="nav nav-tabs mb-3" id="resultTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="keywords-tab" data-bs-toggle="tab" data-bs-target="#keywords" type="button" role="tab">Keywords</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="hashtags-tab" data-bs-toggle="tab" data-bs-target="#hashtags" type="button" role="tab">Hashtags</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="titles-tab" data-bs-toggle="tab" data-bs-target="#titles" type="button" role="tab">Titles</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="tips-tab" data-bs-toggle="tab" data-bs-target="#tips" type="button" role="tab">Tips</button>
+  </li>
+{% if result.target_audience %}
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="audience-tab" data-bs-toggle="tab" data-bs-target="#audience" type="button" role="tab">Audience</button>
+  </li>
+{% endif %}
+</ul>
+
+<div class="tab-content" id="resultTabsContent">
+  <div class="tab-pane fade show active" id="keywords" role="tabpanel">
+    {% if result.core_keywords %}
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead><tr><th>Keyword</th><th>Volume</th><th>Competition</th><th>Relevance</th></tr></thead>
+        <tbody>
+          {% for kw in result.core_keywords %}
+          <tr><td>{{ kw.keyword }}</td><td>{{ kw.search_volume }}</td><td>{{ kw.competition }}</td><td>{{ kw.relevance }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+    {% if result.related_phrases %}
+    <h6>Related Phrases</h6>
+    <ul>{% for p in result.related_phrases %}<li>{{ p }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="hashtags" role="tabpanel">
+    {% if result.viral_hashtags %}
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead><tr><th>Hashtag</th><th>Posts</th></tr></thead>
+        <tbody>
+          {% for h in result.viral_hashtags %}
+          <tr><td>{{ h.tag }}</td><td>{{ h.post_count }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+    {% if result.hashtags %}
+    <h6>Recommended Hashtags</h6>
+    <ul>{% for h in result.hashtags %}<li>{{ h }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="titles" role="tabpanel">
+    {% if result.content_titles %}
+    <ul class="list-group">{% for t in result.content_titles %}<li class="list-group-item">{{ t }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% if result.video_titles %}
+    <ul class="list-group">{% for t in result.video_titles %}<li class="list-group-item">{{ t.title }} <span class="badge bg-info">{{ t.expected_ctr }}</span></li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="tips" role="tabpanel">
+    {% if result.strategy_tips %}
+    <ul class="list-group">{% for t in result.strategy_tips %}<li class="list-group-item">{{ t }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% if result.engagement_strategies %}
+    <h6 class="mt-3">Engagement Strategies</h6>
+    <ul>{% for s in result.engagement_strategies %}<li>{{ s }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% if result.best_posting_time %}
+    <p class="mt-3"><strong>Best Posting Time:</strong> {{ result.best_posting_time }}</p>
+    {% endif %}
+  </div>
+
+{% if result.target_audience %}
+  <div class="tab-pane fade" id="audience" role="tabpanel">
+    <p>{{ result.target_audience }}</p>
+  </div>
+{% endif %}
+</div>
+
+{% if result.description_template %}
+<div class="card mt-3">
+  <div class="card-header">Description Template</div>
+  <div class="card-body"><pre class="mb-0">{{ result.description_template }}</pre></div>
+</div>
+{% endif %}
+
+<details class="mt-3">
+  <summary class="text-muted small">Raw JSON</summary>
+  <pre class="bg-light p-3 mt-2 rounded small">{{ result_json }}</pre>
+</details>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+function copyResults() {
+  const text = document.getElementById('resultTabsContent').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Results copied to clipboard!');
+  });
+}
+</script>
+{% endblock %}

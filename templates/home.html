@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}ContentForge - AI Content Strategy & Grammar{% endblock %}
+{% block content %}
+<div class="row min-vh-75 align-items-center">
+  <div class="col-lg-6">
+    <h1 class="display-4 fw-bold mb-3">AI-Powered Content Strategy & Grammar</h1>
+    <p class="lead mb-4">
+      Analyze your content for SEO across 8 platforms, get viral strategies, and perfect your grammar —
+      all powered by Qwen2.5 locally.
+    </p>
+    {% if user.is_authenticated %}
+    <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg me-2">Go to Dashboard</a>
+    <a href="{% url 'seo_input' %}" class="btn btn-outline-secondary btn-lg">New Analysis</a>
+    {% else %}
+    <a href="{% url 'signup' %}" class="btn btn-primary btn-lg me-2">Get Started Free</a>
+    <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg">Log In</a>
+    {% endif %}
+  </div>
+  <div class="col-lg-6 mt-4 mt-lg-0">
+    <div class="row g-3">
+      {% for key, label, icon in platforms %}
+      <div class="col-4 col-md-3 text-center">
+        <div class="platform-icon-card p-3 rounded bg-light">
+          <i class="bi bi-{{ icon }} fs-2"></i>
+          <small class="d-block mt-1">{{ label }}</small>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="row mt-5 pt-4 border-top">
+  <div class="col-12 text-center mb-4">
+    <h2>What You Can Do</h2>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body text-center p-4">
+        <i class="bi bi-search-heart fs-1 text-primary mb-3"></i>
+        <h5 class="card-title">SEO Content Analysis</h5>
+        <p class="card-text">Get keywords, hashtags, titles, and strategies for 8 social media platforms.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body text-center p-4">
+        <i class="bi bi-spellcheck fs-1 text-success mb-3"></i>
+        <h5 class="card-title">Grammar Correction</h5>
+        <p class="card-text">Fix spelling, grammar, punctuation, and get readability scores with style suggestions.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body text-center p-4">
+        <i class="bi bi-clock-history fs-1 text-warning mb-3"></i>
+        <h5 class="card-title">Full History</h5>
+        <p class="card-text">All your analyses saved. Revisit, export, and compare results anytime.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
